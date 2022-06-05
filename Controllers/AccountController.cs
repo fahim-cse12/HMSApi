@@ -1,8 +1,10 @@
 ﻿using HMSApi.Dto;
 using HMSApi.Entity;
+using HMSApi.Utility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace HMSApi.Controllers
 {
@@ -13,11 +15,14 @@ namespace HMSApi.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        public AccountController(ILogger<AccountController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        private readonly JWTConfig _jWTConfig;
+        public AccountController(ILogger<AccountController> logger, UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager, IOptions<JWTConfig> jwtConfig)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            _jWTConfig = jwtConfig.Value; 
         }
 
         [HttpPost("RegisterUser")]
@@ -76,6 +81,12 @@ namespace HMSApi.Controllers
                 return await Task.FromResult(ex.Message);
             }
 
+        }
+
+        private string GenerateToken()
+        {
+            var token = string.Empty;
+            return token;
         }
 
     }
