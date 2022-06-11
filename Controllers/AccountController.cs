@@ -13,7 +13,7 @@ using System.Text;
 
 namespace HMSApi.Controllers
 {
-    [Authorize] 
+    //[Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -109,7 +109,10 @@ namespace HMSApi.Controllers
                     new System.Security.Claims.Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(5),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _jWTConfig.Issuer,
+                Audience = _jWTConfig.Audience
+
             };
             var token = jwtTokenHandler.CreateToken(tokenDescryptor);
 

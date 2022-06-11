@@ -8,11 +8,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
-
+var MyAllowOrigins = "MyAllowOrigins";
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -57,15 +58,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters()
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateIssuer = true,
+        ValidateAudience = true,
         RequireExpirationTime = true,
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["JWTConfig:Audience"],
+        ValidIssuer = builder.Configuration["JWTConfig:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTConfig:Key"]))
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4200/");
+                          //policy.AllowAnyOrigin();
+                          //policy.AllowAnyHeader();
+                          //policy.AllowAnyMethod();
+
+                      });
+});
+
+ 
 
 builder.Services.AddDbContext<AppDataContext>(options =>
 {
@@ -82,6 +97,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(MyAllowOrigins);
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
