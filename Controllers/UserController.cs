@@ -1,7 +1,6 @@
 ﻿using HMSApi.Dto;
 using HMSApi.Entity;
 using HMSApi.Utility;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -13,22 +12,22 @@ using System.Text;
 
 namespace HMSApi.Controllers
 {
-    //[Authorize] 
+   // [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly ILogger<AccountController> _logger;
+        private readonly ILogger<UserController> _logger;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly JWTConfig _jWTConfig;
-        public AccountController(ILogger<AccountController> logger, UserManager<AppUser> userManager,
+        public UserController(ILogger<UserController> logger, UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager, IOptions<JWTConfig> jwtConfig)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
-            _jWTConfig = jwtConfig.Value; 
+            _jWTConfig = jwtConfig.Value;
         }
 
         [HttpPost("RegisterUser")]
@@ -51,8 +50,7 @@ namespace HMSApi.Controllers
 
         }
 
-  
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("GetAllUser")]
         public async Task<object> GetAllUser()
         {
@@ -77,8 +75,8 @@ namespace HMSApi.Controllers
                 if (ModelState.IsValid)
                 {
                     var result = await _signInManager.PasswordSignInAsync(model.email, model.password, false, false);
-                   
-                    if (result.Succeeded) 
+
+                    if (result.Succeeded)
                     {
                         var appUser = await _userManager.FindByEmailAsync(model.email);
                         var user = new UserDto(appUser.FullName, appUser.UserName, appUser.Email, appUser.DateCreated);
@@ -109,14 +107,14 @@ namespace HMSApi.Controllers
                     new System.Security.Claims.Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(5),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _jWTConfig.Issuer,
                 Audience = _jWTConfig.Audience
 
             };
             var token = jwtTokenHandler.CreateToken(tokenDescryptor);
 
-            return jwtTokenHandler.WriteToken(token) ;
+            return jwtTokenHandler.WriteToken(token);
         }
 
     }
